@@ -1,5 +1,8 @@
 import api from "@/lib/axios";
-import { ProductsResponse } from "@/types/product";
+import {
+  ProductCategory,
+  ProductsResponse,
+} from "@/types/product";
 
 export const getProducts = async (
   limit: number = 10,
@@ -28,6 +31,36 @@ export const searchProducts = async (
     {
       params: {
         q: query,
+        limit,
+        skip,
+      },
+      signal,
+    }
+  );
+
+  return response.data;
+};
+
+export const getCategories = async (): Promise<
+  ProductCategory[]
+> => {
+  const response = await api.get<ProductCategory[]>(
+    "/products/categories"
+  );
+
+  return response.data;
+};
+
+export const getProductsByCategory = async (
+  category: string,
+  limit: number = 10,
+  skip: number = 0,
+  signal?: AbortSignal
+): Promise<ProductsResponse> => {
+  const response = await api.get<ProductsResponse>(
+    `/products/category/${category}`,
+    {
+      params: {
         limit,
         skip,
       },

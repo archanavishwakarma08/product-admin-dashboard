@@ -9,6 +9,7 @@ import {
 
 import {
   getProducts,
+  getProductsByCategory,
   searchProducts,
 } from "@/services/productService";
 
@@ -16,6 +17,7 @@ import { Product } from "@/types/product";
 import ProductTable from "@/components/products/ProductTable";
 import ProductPagination from "@/components/products/ProductPagination";
 import ProductSearch from "@/components/products/ProductSearch";
+import ProductCategoryFilter from "@/components/products/ProductCategoryFilter";
 
 const VALID_PAGE_SIZES = [10, 20, 50];
 
@@ -28,6 +30,7 @@ export default function ProductsList() {
   const rawPageSize = Number(searchParams.get("pageSize"));
 
   const searchQuery = searchParams.get("search") || "";
+  const category = searchParams.get("category") || "";
 
   const currentPage =
     Number.isInteger(rawPage) && rawPage > 0
@@ -61,13 +64,22 @@ export default function ProductsList() {
         );
       }
 
+      if (category) {
+        return getProductsByCategory(
+          category,
+          pageSize,
+          skip,
+          signal
+        );
+      }
+
       return getProducts(
         pageSize,
         skip,
         signal
       );
     },
-    [currentPage, pageSize, searchQuery]
+    [currentPage, pageSize, searchQuery, category]
   );
 
   useEffect(() => {
@@ -82,11 +94,8 @@ export default function ProductsList() {
         setProducts(response.products);
         setTotalProducts(response.total);
         setError("");
-      } catch (error) {
-        if (
-          error instanceof DOMException &&
-          error.name === "AbortError"
-        ) {
+      } catch {
+        if (controller.signal.aborted) {
           return;
         }
 
@@ -108,7 +117,8 @@ export default function ProductsList() {
   const updateUrl = (
     page: number,
     newPageSize: number = pageSize,
-    newSearch: string = searchQuery
+    newSearch: string = searchQuery,
+    newCategory: string = category
   ) => {
     const params = new URLSearchParams(
       searchParams.toString()
@@ -119,8 +129,15 @@ export default function ProductsList() {
 
     if (newSearch) {
       params.set("search", newSearch);
+      params.delete("category");
     } else {
       params.delete("search");
+
+      if (newCategory) {
+        params.set("category", newCategory);
+      } else {
+        params.delete("category");
+      }
     }
 
     router.push(
@@ -147,7 +164,11 @@ export default function ProductsList() {
   };
 
   const handleSearch = (value: string) => {
-    updateUrl(1, pageSize, value);
+    updateUrl(1, pageSize, value, "");
+  };
+
+  const handleCategoryChange = (value: string) => {
+    updateUrl(1, pageSize, "", value);
   };
 
   const handleRetry = async () => {
@@ -170,8 +191,14 @@ export default function ProductsList() {
     return (
       <>
         <ProductSearch
+          key={`${searchQuery}-${category}`}
           value={searchQuery}
           onSearch={handleSearch}
+        />
+
+        <ProductCategoryFilter
+          value={category}
+          onChange={handleCategoryChange}
         />
 
         <div className="rounded-lg border p-8 text-center">
@@ -185,8 +212,14 @@ export default function ProductsList() {
     return (
       <>
         <ProductSearch
+          key={`${searchQuery}-${category}`}
           value={searchQuery}
           onSearch={handleSearch}
+        />
+
+        <ProductCategoryFilter
+          value={category}
+          onChange={handleCategoryChange}
         />
 
         <div className="rounded-lg border p-8 text-center">
@@ -210,8 +243,14 @@ export default function ProductsList() {
     return (
       <>
         <ProductSearch
+          key={`${searchQuery}-${category}`}
           value={searchQuery}
           onSearch={handleSearch}
+        />
+
+        <ProductCategoryFilter
+          value={category}
+          onChange={handleCategoryChange}
         />
 
         <div className="rounded-lg border p-8 text-center">
@@ -224,8 +263,14 @@ export default function ProductsList() {
   return (
     <>
       <ProductSearch
+        key={`${searchQuery}-${category}`}
         value={searchQuery}
         onSearch={handleSearch}
+      />
+
+      <ProductCategoryFilter
+        value={category}
+        onChange={handleCategoryChange}
       />
 
       <ProductTable products={products} />

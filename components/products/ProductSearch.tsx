@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ProductSearchProps {
   value: string;
@@ -12,16 +12,29 @@ export default function ProductSearch({
   onSearch,
 }: ProductSearchProps) {
   const [inputValue, setInputValue] = useState(value);
+  const onSearchRef = useRef(onSearch);
+  const valueRef = useRef(value);
 
   useEffect(() => {
+    onSearchRef.current = onSearch;
+    valueRef.current = value;
+  }, [onSearch, value]);
+
+  useEffect(() => {
+    if (inputValue.trim() === valueRef.current.trim()) {
+      return;
+    }
+
     const timer = setTimeout(() => {
-      onSearch(inputValue.trim());
+      if (inputValue.trim() !== valueRef.current.trim()) {
+        onSearchRef.current(inputValue.trim());
+      }
     }, 500);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [inputValue, onSearch]);
+  }, [inputValue]);
 
   return (
     <div className="mb-6">
@@ -36,7 +49,9 @@ export default function ProductSearch({
         id="product-search"
         type="search"
         value={inputValue}
-        onChange={(event) => setInputValue(event.target.value)}
+        onChange={(event) =>
+          setInputValue(event.target.value)
+        }
         placeholder="Search by product name..."
         className="w-full rounded-md border px-4 py-2 outline-none focus:ring-2 focus:ring-black sm:max-w-md"
       />
