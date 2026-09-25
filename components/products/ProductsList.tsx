@@ -1,33 +1,64 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+
 import { getProducts } from "@/services/productService";
 import { Product } from "@/types/product";
 import ProductTable from "@/components/products/ProductTable";
+import ProductPagination from "@/components/products/ProductPagination";
+
+const VALID_PAGE_SIZES = [10, 20, 50];
 
 export default function ProductsList() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const rawPage = Number(searchParams.get("page"));
+  const rawPageSize = Number(searchParams.get("pageSize"));
+
+  const currentPage =
+    Number.isInteger(rawPage) && rawPage > 0
+      ? rawPage
+      : 1;
+
+  const pageSize = VALID_PAGE_SIZES.includes(rawPageSize)
+    ? rawPageSize
+    : 10;
+
   const [products, setProducts] = useState<Product[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchProducts = async () => {
-    setError("");
-
-    try {
-      const response = await getProducts(10, 0);
-      setProducts(response.products);
-    } catch {
-      setError("Failed to load products.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalProducts / pageSize)
+  );
 
   useEffect(() => {
     const loadProducts = async () => {
+      setIsLoading(true);
+      setError("");
+
       try {
-        const response = await getProducts(10, 0);
+        const skip = (currentPage - 1) * pageSize;
+
+        const response = await getProducts(
+          pageSize,
+          skip
+        );
+
         setProducts(response.products);
+        setTotalProducts(response.total);
       } catch {
         setError("Failed to load products.");
       } finally {
@@ -36,7 +67,37 @@ export default function ProductsList() {
     };
 
     loadProducts();
-  }, []);
+  }, [currentPage, pageSize]);
+
+  const updateUrl = (
+    page: number,
+    newPageSize: number = pageSize
+  ) => {
+    const params = new URLSearchParams(
+      searchParams.toString()
+    );
+
+    params.set("page", String(page));
+    params.set("pageSize", String(newPageSize));
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) {
+      return;
+    }
+
+    updateUrl(page);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    if (!VALID_PAGE_SIZES.includes(newPageSize)) {
+      return;
+    }
+
+    updateUrl(1, newPageSize);
+  };
 
   if (isLoading) {
     return (
@@ -53,7 +114,7 @@ export default function ProductsList() {
 
         <button
           type="button"
-          onClick={fetchProducts}
+          onClick={() => updateUrl(currentPage)}
           className="rounded-md bg-black px-4 py-2 text-white"
         >
           Retry
@@ -70,5 +131,18 @@ export default function ProductsList() {
     );
   }
 
-  return <ProductTable products={products} />;
+  return (
+    <>
+      <ProductTable products={products} />
+
+      <ProductPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalProducts={totalProducts}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
+    </>
+  );
 }
