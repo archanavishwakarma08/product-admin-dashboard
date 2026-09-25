@@ -22,3 +22,7 @@ export interface ProductCategory {
   name: string;
   url: string;
 }
+
+export type ProductSortBy = "price" | "rating" | "title";
+
+export type SortOrder = "asc" | "desc";

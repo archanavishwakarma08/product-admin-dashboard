@@ -2,20 +2,29 @@ import api from "@/lib/axios";
 import {
   ProductCategory,
   ProductsResponse,
+  ProductSortBy,
+  SortOrder,
 } from "@/types/product";
 
 export const getProducts = async (
   limit: number = 10,
   skip: number = 0,
+  sortBy?: ProductSortBy,
+  order?: SortOrder,
   signal?: AbortSignal
 ): Promise<ProductsResponse> => {
-  const response = await api.get<ProductsResponse>("/products", {
-    params: {
-      limit,
-      skip,
-    },
-    signal,
-  });
+  const response = await api.get<ProductsResponse>(
+    "/products",
+    {
+      params: {
+        limit,
+        skip,
+        ...(sortBy && { sortBy }),
+        ...(order && { order }),
+      },
+      signal,
+    }
+  );
 
   return response.data;
 };
@@ -24,6 +33,8 @@ export const searchProducts = async (
   query: string,
   limit: number = 10,
   skip: number = 0,
+  sortBy?: ProductSortBy,
+  order?: SortOrder,
   signal?: AbortSignal
 ): Promise<ProductsResponse> => {
   const response = await api.get<ProductsResponse>(
@@ -33,6 +44,8 @@ export const searchProducts = async (
         q: query,
         limit,
         skip,
+        ...(sortBy && { sortBy }),
+        ...(order && { order }),
       },
       signal,
     }
@@ -55,6 +68,8 @@ export const getProductsByCategory = async (
   category: string,
   limit: number = 10,
   skip: number = 0,
+  sortBy?: ProductSortBy,
+  order?: SortOrder,
   signal?: AbortSignal
 ): Promise<ProductsResponse> => {
   const response = await api.get<ProductsResponse>(
@@ -63,6 +78,8 @@ export const getProductsByCategory = async (
       params: {
         limit,
         skip,
+        ...(sortBy && { sortBy }),
+        ...(order && { order }),
       },
       signal,
     }
