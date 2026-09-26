@@ -37,3 +37,12 @@ export interface ProductReview {
 export interface ProductDetails extends Product {
   reviews: ProductReview[];
 }
+
+export interface ProductFormData {
+  title: string;
+  price: number;
+  stock: number;
+  category: string;
+  description: string;
+  thumbnail: string;
+}

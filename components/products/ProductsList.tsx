@@ -8,6 +8,7 @@ import {
 } from "next/navigation";
 
 import {
+   deleteProduct,
   getProducts,
   getProductsByCategory,
   searchProducts,
@@ -18,6 +19,7 @@ import {
   ProductSortBy,
   SortOrder,
 } from "@/types/product";
+ import ProductModal from "@/components/products/ProductModal";
 
 import ProductTable from "@/components/products/ProductTable";
 import ProductPagination from "@/components/products/ProductPagination";
@@ -96,6 +98,18 @@ export default function ProductsList() {
     useState(true);
 
   const [error, setError] = useState("");
+   const [isModalOpen, setIsModalOpen] =
+  useState(false);
+
+const [editingProduct, setEditingProduct] =
+  useState<Product | null>(null);
+
+const [deleteError, setDeleteError] =
+  useState("");
+
+const [deletingProductId, setDeletingProductId] =
+  useState<number | null>(null);
+
 
   const totalPages = Math.max(
     1,
@@ -341,6 +355,94 @@ export default function ProductsList() {
     );
   };
 
+  
+  const handleAddProduct = () => {
+  setEditingProduct(null);
+  setIsModalOpen(true);
+};
+
+const handleEditProduct = (
+  product: Product
+) => {
+  setEditingProduct(product);
+  setIsModalOpen(true);
+};
+
+const handleFormSuccess = (
+  product: Product
+) => {
+  if (editingProduct) {
+    setProducts((currentProducts) =>
+      currentProducts.map((item) =>
+        item.id === product.id
+          ? {
+              ...item,
+              ...product,
+            }
+          : item
+      )
+    );
+  } else {
+    setProducts((currentProducts) => [
+      product,
+      ...currentProducts,
+    ]);
+
+    setTotalProducts(
+      (currentTotal) =>
+        currentTotal + 1
+    );
+  }
+
+  setIsModalOpen(false);
+  setEditingProduct(null);
+  setError("");
+};
+
+const handleDeleteProduct = async (
+  product: Product
+) => {
+  if (
+    deletingProductId !== null
+  ) {
+    return;
+  }
+
+  const confirmed =
+    window.confirm(
+      `Are you sure you want to delete "${product.title}"?`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setDeleteError("");
+    setDeletingProductId(product.id);
+
+    await deleteProduct(product.id);
+
+    setProducts((currentProducts) =>
+      currentProducts.filter(
+        (item) =>
+          item.id !== product.id
+      )
+    );
+
+    setTotalProducts(
+      (currentTotal) =>
+        Math.max(0, currentTotal - 1)
+    );
+  } catch {
+    setDeleteError(
+      "Failed to delete product. Please try again."
+    );
+  } finally {
+    setDeletingProductId(null);
+  }
+};
+
   const handleRetry = async () => {
     setIsLoading(true);
     setError("");
@@ -443,27 +545,58 @@ export default function ProductsList() {
   }
 
   return (
-    <>
-      {searchAndFilterControls}
+  <>
+    <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <h2 className="text-xl font-semibold">
+        Products
+      </h2>
 
-      <ProductTable
-        products={products}
-      />
+      <button
+        type="button"
+        onClick={handleAddProduct}
+        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700"
+      >
+        <span aria-hidden="true">+</span>
+        Add Product
+      </button>
+    </div>
 
-      <ProductPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        pageSize={pageSize}
-        totalProducts={
-          totalProducts
-        }
-        onPageChange={
-          handlePageChange
-        }
-        onPageSizeChange={
-          handlePageSizeChange
-        }
+    {deleteError && (
+      <div
+        role="alert"
+        className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+      >
+        {deleteError}
+      </div>
+    )}
+
+    {searchAndFilterControls}
+
+    <ProductTable
+      products={products}
+      onEdit={handleEditProduct}
+      onDelete={handleDeleteProduct}
+    />
+
+    <ProductPagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      pageSize={pageSize}
+      totalProducts={totalProducts}
+      onPageChange={handlePageChange}
+      onPageSizeChange={handlePageSizeChange}
+    />
+
+    {isModalOpen && (
+      <ProductModal
+        product={editingProduct}
+        onSuccess={handleFormSuccess}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingProduct(null);
+        }}
       />
-    </>
-  );
+    )}
+  </>
+);
 }
