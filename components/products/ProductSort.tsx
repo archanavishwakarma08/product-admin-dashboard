@@ -8,8 +8,12 @@ import {
 interface ProductSortProps {
   sortBy: ProductSortBy;
   order: SortOrder;
-  onSortByChange: (value: ProductSortBy) => void;
-  onOrderChange: (value: SortOrder) => void;
+  onSortByChange: (
+    value: ProductSortBy
+  ) => void;
+  onOrderChange: (
+    value: SortOrder
+  ) => void;
 }
 
 export default function ProductSort({
@@ -19,8 +23,8 @@ export default function ProductSort({
   onOrderChange,
 }: ProductSortProps) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row">
-      <div className="w-full sm:max-w-md">
+    <>
+      <div className="w-full">
         <label
           htmlFor="product-sort"
           className="mb-2 block text-sm font-medium text-gray-700"
@@ -33,18 +37,27 @@ export default function ProductSort({
           value={sortBy}
           onChange={(event) =>
             onSortByChange(
-              event.target.value as ProductSortBy
+              event.target
+                .value as ProductSortBy
             )
           }
-          className="w-full rounded-md border px-4 py-2"
+          className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-400"
         >
-          <option value="price">Price</option>
-          <option value="rating">Rating</option>
-          <option value="title">Title</option>
+          <option value="price">
+            Price
+          </option>
+
+          <option value="rating">
+            Rating
+          </option>
+
+          <option value="title">
+            Title
+          </option>
         </select>
       </div>
 
-      <div className="w-full sm:max-w-md">
+      <div className="w-full">
         <label
           htmlFor="sort-order"
           className="mb-2 block text-sm font-medium text-gray-700"
@@ -57,15 +70,21 @@ export default function ProductSort({
           value={order}
           onChange={(event) =>
             onOrderChange(
-              event.target.value as SortOrder
+              event.target
+                .value as SortOrder
             )
           }
-          className="w-full rounded-md border px-4 py-2"
+          className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-400"
         >
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
+          <option value="asc">
+            Ascending
+          </option>
+
+          <option value="desc">
+            Descending
+          </option>
         </select>
       </div>
-    </div>
+    </>
   );
 }

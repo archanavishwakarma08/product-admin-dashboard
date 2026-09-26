@@ -365,33 +365,36 @@ export default function ProductsList() {
     }
   };
 
-  const searchAndFilterControls = (
-    <>
-      <ProductSearch
-        key={`${searchQuery}-${category}`}
-        value={searchQuery}
-        onSearch={handleSearch}
-      />
 
-      <ProductCategoryFilter
-        value={category}
-        onChange={
-          handleCategoryChange
-        }
-      />
+ const searchAndFilterControls = (
+  <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_180px_150px_150px] md:items-end">
+    <ProductSearch
+      key={`${searchQuery}-${category}`}
+      value={searchQuery}
+      onSearch={handleSearch}
+    />
 
-      <ProductSort
-        sortBy={sortBy}
-        order={order}
-        onSortByChange={
-          handleSortByChange
-        }
-        onOrderChange={
-          handleOrderChange
-        }
-      />
-    </>
-  );
+    <ProductCategoryFilter
+      value={category}
+      onChange={
+        handleCategoryChange
+      }
+    />
+
+    <ProductSort
+      sortBy={sortBy}
+      order={order}
+      onSortByChange={
+        handleSortByChange
+      }
+      onOrderChange={
+        handleOrderChange
+      }
+    />
+  </div>
+);
+
+
 
   if (isLoading) {
     return (

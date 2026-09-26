@@ -1,6 +1,7 @@
 import api from "@/lib/axios";
 import {
   ProductCategory,
+   ProductDetails,
   ProductsResponse,
   ProductSortBy,
   SortOrder,
@@ -84,6 +85,16 @@ export const getProductsByCategory = async (
       signal,
     }
   );
+
+  return response.data;
+};
+export const getProductById = async (
+  id: number
+): Promise<ProductDetails> => {
+  const response =
+    await api.get<ProductDetails>(
+      `/products/${id}`
+    );
 
   return response.data;
 };

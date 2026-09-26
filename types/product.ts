@@ -26,3 +26,14 @@ export interface ProductCategory {
 export type ProductSortBy = "price" | "rating" | "title";
 
 export type SortOrder = "asc" | "desc";
+export interface ProductReview {
+  rating: number;
+  comment: string;
+  date: string;
+  reviewerName: string;
+  reviewerEmail: string;
+}
+
+export interface ProductDetails extends Product {
+  reviews: ProductReview[];
+}
