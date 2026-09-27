@@ -130,9 +130,11 @@ export default function ProductPagination({
               <button
                 key={page}
                 type="button"
-                onClick={() =>
-                  onPageChange(page)
-                }
+                onClick={() => {
+                  if (typeof page === "number") {
+                    onPageChange(page);
+                  }
+                }}
                 aria-current={
                   currentPage === page
                     ? "page"

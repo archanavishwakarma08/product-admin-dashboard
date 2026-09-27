@@ -1,6 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import {
   usePathname,
   useRouter,
@@ -42,7 +47,7 @@ const VALID_SORT_ORDERS: SortOrder[] = [
   "desc",
 ];
 
-export default function ProductsList() {
+function ProductsListContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -621,5 +626,19 @@ export default function ProductsList() {
         />
       )}
     </>
+  );
+}
+
+export default function ProductsList() {
+  return (
+    <Suspense
+      fallback={
+        <div className="rounded-lg border p-8 text-center">
+          Loading products...
+        </div>
+      }
+    >
+      <ProductsListContent />
+    </Suspense>
   );
 }

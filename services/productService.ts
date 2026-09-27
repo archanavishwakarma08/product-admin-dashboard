@@ -1,11 +1,13 @@
 import api from "@/lib/axios";
+
 import {
   Product,
   ProductCategory,
-   ProductDetails,
+  ProductDetails,
   ProductsResponse,
   ProductSortBy,
   SortOrder,
+  ProductFormData,
 } from "@/types/product";
 
 export const getProducts = async (
@@ -89,6 +91,7 @@ export const getProductsByCategory = async (
 
   return response.data;
 };
+
 export const getProductById = async (
   id: number
 ): Promise<ProductDetails> => {

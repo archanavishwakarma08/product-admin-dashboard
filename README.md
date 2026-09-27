@@ -1,36 +1,276 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Product Admin Dashboard
+
+A responsive product administration dashboard built with Next.js, React, TypeScript, Tailwind CSS, Axios, and the DummyJSON API.
+
+The application provides authentication and a complete product management interface with product listing, search, filtering, sorting, pagination, product details, and CRUD operations.
+
+## Features
+
+### Authentication
+
+- Login using DummyJSON authentication API
+- Form validation
+- Authentication error handling
+- Protected product routes
+- Prevents duplicate login submissions
+- Logout support with redirect to the login page
+
+### Product Management
+
+- Product listing
+- Product details
+- Add product
+- Edit product
+- Delete product
+- Delete confirmation
+- Form validation
+- Local UI updates after CRUD operations
+
+### Search
+
+- Product search using DummyJSON search API
+- 500ms debounce
+- Search state stored in URL
+- Resets pagination when a new search is performed
+- AbortController used to prevent stale search responses
+
+### Filtering
+
+- Category filtering
+- Categories loaded dynamically from the API
+- Search and category filtering are mutually exclusive
+
+### Sorting
+
+Products can be sorted by:
+
+- Price
+- Rating
+- Title
+
+Both ascending and descending order are supported.
+
+### Pagination
+
+- API-based pagination using `limit` and `skip`
+- Previous/Next controls
+- Numbered page navigation
+- Page size options:
+  - 10
+  - 20
+  - 50
+
+- Displays the current item range and total product count
+
+### Responsive Design
+
+- Desktop product table
+- Mobile product cards
+- Responsive search, filter, sorting, and pagination controls
+
+### Error & Loading States
+
+- Loading states
+- Empty states
+- API error handling
+- Retry functionality
+- Invalid product ID handling
+
+---
+
+## Tech Stack
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Axios
+- DummyJSON API
+- ESLint
+
+---
+
+## API
+
+This project uses the DummyJSON API for:
+
+- Authentication
+- Products
+- Product search
+- Categories
+- Product details
+- Product CRUD simulation
+
+API documentation:
+
+https://dummyjson.com/docs
+
+---
+
+## Login Credentials
+
+Use the following DummyJSON test credentials:
+
+```text
+Username: emilys
+Password: emilyspass
+```
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+Make sure you have Node.js and npm installed.
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/archanavishwakarma08/product-admin-dashboard.git
+```
+
+Navigate to the project directory:
+
+```bash
+cd product-admin-dashboard
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+### Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open the application in your browser:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Available Scripts
 
-To learn more about Next.js, take a look at the following resources:
+### Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Lint
 
-## Deploy on Vercel
+```bash
+npm run lint
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Production Build
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+```
+
+### Start Production Server
+
+```bash
+npm start
+```
+
+---
+
+## Project Structure
+
+```text
+product-admin-dashboard/
+│
+├── app/
+│   ├── login/
+│   │   └── page.tsx
+│   ├── products/
+│   │   └── page.tsx
+│   └── page.tsx
+│
+├── components/
+│   └── products/
+│       ├── ProductPagination.tsx
+│       ├── ProductSearch.tsx
+│       ├── ProductTable.tsx
+│       └── ProductsList.tsx
+│
+├── context/
+│   └── AuthContext.tsx
+│
+├── hooks/
+│
+├── lib/
+│   └── axios.ts
+│
+├── services/
+│   ├── authService.ts
+│   └── productService.ts
+│
+├── types/
+│   └── product.ts
+│
+├── utils/
+│
+├── middleware.ts
+├── package.json
+├── tsconfig.json
+├── next.config.ts
+└── readme.md
+```
+
+---
+
+## Application Flow
+
+1. User opens the application.
+2. User logs in using the provided DummyJSON test credentials.
+3. Authentication state is managed through `AuthContext`.
+4. Protected routes prevent unauthenticated access to the product dashboard.
+5. Products are fetched through the service layer using Axios.
+6. Users can search, filter, sort, and paginate products.
+7. Product details can be viewed individually.
+8. Users can add, edit, and delete products.
+9. API request cancellation helps prevent stale search results.
+10. User can log out and is redirected to the login page.
+
+---
+
+## Error Handling
+
+The application handles common API and UI states including:
+
+- Loading state
+- Empty results
+- API errors
+- Retry functionality
+- Invalid product IDs
+- Cancelled API requests
+
+---
+
+## Responsive Behavior
+
+The dashboard adapts to different screen sizes.
+
+- Desktop: Product data is displayed in a table.
+- Mobile: Product data is displayed using responsive product cards.
+- Search, filtering, sorting, and pagination controls are responsive.
+
+---
+
+## Repository
+
+GitHub Repository:
+
+https://github.com/archanavishwakarma08/product-admin-dashboard
