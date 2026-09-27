@@ -7,8 +7,10 @@ import {
   useSearchParams,
 } from "next/navigation";
 
+import { useAuth } from "@/context/AuthContext";
+
 import {
-   deleteProduct,
+  deleteProduct,
   getProducts,
   getProductsByCategory,
   searchProducts,
@@ -19,8 +21,8 @@ import {
   ProductSortBy,
   SortOrder,
 } from "@/types/product";
- import ProductModal from "@/components/products/ProductModal";
 
+import ProductModal from "@/components/products/ProductModal";
 import ProductTable from "@/components/products/ProductTable";
 import ProductPagination from "@/components/products/ProductPagination";
 import ProductSearch from "@/components/products/ProductSearch";
@@ -44,6 +46,8 @@ export default function ProductsList() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const { logout } = useAuth();
 
   const rawPage = Number(searchParams.get("page"));
   const rawPageSize = Number(searchParams.get("pageSize"));
@@ -98,18 +102,18 @@ export default function ProductsList() {
     useState(true);
 
   const [error, setError] = useState("");
-   const [isModalOpen, setIsModalOpen] =
-  useState(false);
 
-const [editingProduct, setEditingProduct] =
-  useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] =
+    useState(false);
 
-const [deleteError, setDeleteError] =
-  useState("");
+  const [editingProduct, setEditingProduct] =
+    useState<Product | null>(null);
 
-const [deletingProductId, setDeletingProductId] =
-  useState<number | null>(null);
+  const [deleteError, setDeleteError] =
+    useState("");
 
+  const [deletingProductId, setDeletingProductId] =
+    useState<number | null>(null);
 
   const totalPages = Math.max(
     1,
@@ -355,93 +359,92 @@ const [deletingProductId, setDeletingProductId] =
     );
   };
 
-  
   const handleAddProduct = () => {
-  setEditingProduct(null);
-  setIsModalOpen(true);
-};
+    setEditingProduct(null);
+    setIsModalOpen(true);
+  };
 
-const handleEditProduct = (
-  product: Product
-) => {
-  setEditingProduct(product);
-  setIsModalOpen(true);
-};
+  const handleEditProduct = (
+    product: Product
+  ) => {
+    setEditingProduct(product);
+    setIsModalOpen(true);
+  };
 
-const handleFormSuccess = (
-  product: Product
-) => {
-  if (editingProduct) {
-    setProducts((currentProducts) =>
-      currentProducts.map((item) =>
-        item.id === product.id
-          ? {
-              ...item,
-              ...product,
-            }
-          : item
-      )
-    );
-  } else {
-    setProducts((currentProducts) => [
-      product,
-      ...currentProducts,
-    ]);
+  const handleFormSuccess = (
+    product: Product
+  ) => {
+    if (editingProduct) {
+      setProducts((currentProducts) =>
+        currentProducts.map((item) =>
+          item.id === product.id
+            ? {
+                ...item,
+                ...product,
+              }
+            : item
+        )
+      );
+    } else {
+      setProducts((currentProducts) => [
+        product,
+        ...currentProducts,
+      ]);
 
-    setTotalProducts(
-      (currentTotal) =>
-        currentTotal + 1
-    );
-  }
+      setTotalProducts(
+        (currentTotal) =>
+          currentTotal + 1
+      );
+    }
 
-  setIsModalOpen(false);
-  setEditingProduct(null);
-  setError("");
-};
+    setIsModalOpen(false);
+    setEditingProduct(null);
+    setError("");
+  };
 
-const handleDeleteProduct = async (
-  product: Product
-) => {
-  if (
-    deletingProductId !== null
-  ) {
-    return;
-  }
+  const handleDeleteProduct = async (
+    product: Product
+  ) => {
+    if (
+      deletingProductId !== null
+    ) {
+      return;
+    }
 
-  const confirmed =
-    window.confirm(
-      `Are you sure you want to delete "${product.title}"?`
-    );
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to delete "${product.title}"?`
+      );
 
-  if (!confirmed) {
-    return;
-  }
+    if (!confirmed) {
+      return;
+    }
 
-  try {
-    setDeleteError("");
-    setDeletingProductId(product.id);
+    try {
+      setDeleteError("");
+      setDeletingProductId(product.id);
 
-    await deleteProduct(product.id);
+      await deleteProduct(product.id);
 
-    setProducts((currentProducts) =>
-      currentProducts.filter(
-        (item) =>
-          item.id !== product.id
-      )
-    );
+      setProducts((currentProducts) =>
+        currentProducts.filter(
+          (item) =>
+            item.id !== product.id
+        )
+      );
 
-    setTotalProducts(
-      (currentTotal) =>
-        Math.max(0, currentTotal - 1)
-    );
-  } catch {
-    setDeleteError(
-      "Failed to delete product. Please try again."
-    );
-  } finally {
-    setDeletingProductId(null);
-  }
-};
+      setTotalProducts(
+        (currentTotal) =>
+          Math.max(0, currentTotal - 1)
+      );
+    } catch {
+      setDeleteError(
+        "Failed to delete product. Please try again."
+      );
+    } finally {
+      setDeletingProductId(null);
+    }
+  };
 
   const handleRetry = async () => {
     setIsLoading(true);
@@ -467,36 +470,38 @@ const handleDeleteProduct = async (
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
- const searchAndFilterControls = (
-  <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_180px_150px_150px] md:items-end">
-    <ProductSearch
-      key={`${searchQuery}-${category}`}
-      value={searchQuery}
-      onSearch={handleSearch}
-    />
+  const searchAndFilterControls = (
+    <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_180px_150px_150px] md:items-end">
+      <ProductSearch
+        key={`${searchQuery}-${category}`}
+        value={searchQuery}
+        onSearch={handleSearch}
+      />
 
-    <ProductCategoryFilter
-      value={category}
-      onChange={
-        handleCategoryChange
-      }
-    />
+      <ProductCategoryFilter
+        value={category}
+        onChange={
+          handleCategoryChange
+        }
+      />
 
-    <ProductSort
-      sortBy={sortBy}
-      order={order}
-      onSortByChange={
-        handleSortByChange
-      }
-      onOrderChange={
-        handleOrderChange
-      }
-    />
-  </div>
-);
-
-
+      <ProductSort
+        sortBy={sortBy}
+        order={order}
+        onSortByChange={
+          handleSortByChange
+        }
+        onOrderChange={
+          handleOrderChange
+        }
+      />
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -545,58 +550,76 @@ const handleDeleteProduct = async (
   }
 
   return (
-  <>
-    <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <h2 className="text-xl font-semibold">
-        Products
-      </h2>
+    <>
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900">
+            Products
+          </h2>
 
-      <button
-        type="button"
-        onClick={handleAddProduct}
-        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700"
-      >
-        <span aria-hidden="true">+</span>
-        Add Product
-      </button>
-    </div>
+          <p className="mt-1 text-sm text-slate-500">
+            Manage your product inventory
+          </p>
+        </div>
 
-    {deleteError && (
-      <div
-        role="alert"
-        className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
-      >
-        {deleteError}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleAddProduct}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
+          >
+            <span aria-hidden="true">
+              +
+            </span>
+            Add Product
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          >
+            Logout
+          </button>
+        </div>
       </div>
-    )}
 
-    {searchAndFilterControls}
+      {deleteError && (
+        <div
+          role="alert"
+          className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+        >
+          {deleteError}
+        </div>
+      )}
 
-    <ProductTable
-      products={products}
-      onEdit={handleEditProduct}
-      onDelete={handleDeleteProduct}
-    />
+      {searchAndFilterControls}
 
-    <ProductPagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      pageSize={pageSize}
-      totalProducts={totalProducts}
-      onPageChange={handlePageChange}
-      onPageSizeChange={handlePageSizeChange}
-    />
-
-    {isModalOpen && (
-      <ProductModal
-        product={editingProduct}
-        onSuccess={handleFormSuccess}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingProduct(null);
-        }}
+      <ProductTable
+        products={products}
+        onEdit={handleEditProduct}
+        onDelete={handleDeleteProduct}
       />
-    )}
-  </>
-);
+
+      <ProductPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalProducts={totalProducts}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
+
+      {isModalOpen && (
+        <ProductModal
+          product={editingProduct}
+          onSuccess={handleFormSuccess}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingProduct(null);
+          }}
+        />
+      )}
+    </>
+  );
 }

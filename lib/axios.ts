@@ -7,4 +7,38 @@ const api = axios.create({
   },
 });
 
+// Add authentication token to every request
+api.interceptors.request.use(
+  (config) => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("auth_token");
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Handle API errors in one place
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
+
+      document.cookie =
+        "auth_token=; path=/; max-age=0";
+
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;
